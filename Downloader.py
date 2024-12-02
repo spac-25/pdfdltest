@@ -6,7 +6,7 @@ class Downloader(object):
 
     #uses a url link and a destination to download a file. Optionally one can use an alt url if applicaple
     #Returns success is file got downlaoded
-    def download(self,url : str, destination_path : str, alt_url : Optional[str] = None, timeout: int = 30) -> bool:
+    def download(self,url : str, destination_path : str, alt_url : Optional[str] = None, timeout: float = 30.0) -> bool:
 
         success = True
         if not url and not alt_url:
