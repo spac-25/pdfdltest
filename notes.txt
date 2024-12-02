@@ -1,0 +1,8 @@
+missing requiremet `xlsxwriter`
+manually written `requirements.txt` file. use `pip freeze > requirements.txt`
+missing instructions to have data at `customer_data\GRI_2017_2020.xlsx`
+doesn't check magic number of file to ensure file is PDF (first four bytes of file is `%PDF`)
+`queue` could have emptied out between `queue.empty()` check and `queue.get()` call, resulting in an exception
+checks if `files` folder exists for each download
+appends `BRnum` to global list before download, but appends `pdf_downloaded` to global sister list AFTER download, so the same index from each list doesn't necessarily contain the right id,status pair
+unused `File_Handler.py`
