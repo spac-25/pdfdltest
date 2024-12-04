@@ -62,5 +62,5 @@ def main(args: List[str]):
         controller.run()
 
 #My main function
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     main(sys.argv[1:])
