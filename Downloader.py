@@ -14,6 +14,11 @@ class Downloader(object):
         #Tries downloading with the main url
         try:
             response = requests.get(url,stream = True, timeout=timeout)
+
+            #Checks if the status code is 200
+            if response.status_code != 200:
+                raise Exception(f"Bad status code: {response.status_code}")
+
             #Checks if the response was a pdf file
             if not "application/pdf" in response.headers.get("content-type"):
                 raise Exception("Not pdf type")
