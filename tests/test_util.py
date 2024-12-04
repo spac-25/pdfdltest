@@ -4,6 +4,10 @@ import base64
 import time
 from pathlib import Path
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from pytest_httpserver import HTTPServer
 
 # https://www.emcken.dk/programming/2024/01/12/very-small-pdf-for-testing/
