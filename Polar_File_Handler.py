@@ -86,6 +86,6 @@ class FileHandler(object):
             finished_data_frame.write_excel(workbook = file)
         
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     file_handler = FileHandler()
     file_handler.start_download(os.path.join("customer_data","GRI_2017_2020.xlsx"),os.path.join("customer_data","Metadata2017_2020.xlsx"),"files")
