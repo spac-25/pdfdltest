@@ -5,3 +5,4 @@ __pycache__/
 *$py.class
 Week4/Data_set.txt
 Week5/files/
+.coverage
