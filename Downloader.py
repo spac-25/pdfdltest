@@ -40,7 +40,13 @@ class Downloader(object):
         #Sace file to the distination
         with open(destination_path, "wb") as file:
             try:
-                file.write(response.content)
+                content = response.content
+
+                #Checks if content head is PDF magic number
+                if content[:4] != '%PDF'.encode():
+                    raise Exception("Not pdf type")
+
+                file.write(content)
             except:
                 return False
         return success
