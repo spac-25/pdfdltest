@@ -1,6 +1,7 @@
 from Polar_File_Handler import FileHandler
-from typing import Optional
+from typing import Optional, List
 import os
+import sys
 import argparse
 
 #Class for instantiating a download from a file into a given path. 
@@ -32,7 +33,7 @@ class Controller(object):
             file_handler = FileHandler()
         file_handler.start_download(self.url_file_name,self.report_file_name,self.destination)
 
-def main():
+def main(args: List[str]):
     controller = Controller()
 
     #Adds a commandline parser
@@ -45,7 +46,7 @@ def main():
     parser.add_argument("-t","--threads", help = "The number of threads")
 
     #Gets the parameters from the commandline and applies them where appropriate
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     if args.url_file:
         controller.set_url_file(args.url_file)
     if args.report_file:
@@ -62,4 +63,4 @@ def main():
 
 #My main function
 if __name__ == "__main__": # pragma: no cover
-    main()
+    main(sys.argv[1:])
