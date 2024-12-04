@@ -32,8 +32,7 @@ class Controller(object):
             file_handler = FileHandler()
         file_handler.start_download(self.url_file_name,self.report_file_name,self.destination)
 
-#My main function
-if __name__ == "__main__":
+def main():
     controller = Controller()
 
     #Adds a commandline parser
@@ -60,3 +59,7 @@ if __name__ == "__main__":
             print("Thread should be an integer")
     else:
         controller.run()
+
+#My main function
+if __name__ == "__main__":
+    main()
