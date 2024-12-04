@@ -18,17 +18,13 @@ class FileHandler(object):
     def download_thread(self,queue:Queue) -> None:
         while not queue.empty():
             
-            link, destination, name, alt_link, finished_dict = queue.get()
+            link, destination, name, alt_link, results_dict = queue.get()
             downloader = Downloader()
             Path(destination).mkdir(exist_ok=True)
 
             #Dictionaries are not necesarily thread safe but appending to it is so this is fine. If more complicated tasks where needed you would use a mutex lock etc
-            finished_dict["BRnum"].append(name)
             downloaded = downloader.download(url=link,destination_path=os.path.join(destination, name+".pdf"), alt_url=alt_link)
-            if downloaded:
-                finished_dict["pdf_downloaded"].append("yes")
-            else:
-                finished_dict["pdf_downloaded"].append("no")
+            results_dict[name] = "yes" if downloaded else "no"
             queue.task_done()
 
     #Starts downlaoding files from urls listed in url_file which will be placed in the destination, and reported in the meta file
@@ -52,8 +48,8 @@ class FileHandler(object):
 
         queue = Queue()
 
-        #Creates a dictionary of downloads
-        finished_dict = {ID:[],"pdf_downloaded":[]}
+        #Dictionary to fill with download results
+        results_dict = {}
 
         #counter to only download 10 files
         j = 0
@@ -65,14 +61,22 @@ class FileHandler(object):
             link = row["Pdf_URL"]
             index = row[ID]            
             #Creates a new thread and adds them to the list so that we can make sure all downloads are done before exiting
-            queue.put([link,destination,index,alt_link,finished_dict])
+            queue.put([link,destination,index,alt_link,results_dict])
             j += 1
+
         #Makes sure each thread is done
         for i in range(self.number_of_threads):
             thread = threading.Thread(target=self.download_thread, args = (queue,))
             thread.start()
 
         queue.join()
+
+        #Creates a dictionary of downloads
+        finished_dict = {ID:[],"pdf_downloaded":[]}
+        for id, result in results_dict.items():
+            finished_dict[ID].append(id)
+            finished_dict["pdf_downloaded"].append(result)
+
         #Creates a dataframe from the dictionary of downloads
         finished_data_frame = pl.from_dict(finished_dict)
 
