@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import threading
 from typing import Optional
-from queue import Queue
+from queue import Queue, Empty
 import polars as pl
 from xlsxwriter import Workbook
 
@@ -16,9 +16,13 @@ class FileHandler(object):
 
     #Function that starts a download instance using the downloader class. Used in threads
     def download_thread(self,queue:Queue) -> None:
-        while not queue.empty():
-            
-            link, destination, name, alt_link, results_dict = queue.get()
+        while True:
+            try:
+                info = queue.get()
+            except Empty:
+                break
+
+            link, destination, name, alt_link, results_dict = info
             downloader = Downloader()
             Path(destination).mkdir(exist_ok=True)
 
