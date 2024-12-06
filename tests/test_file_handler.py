@@ -128,11 +128,11 @@ def test_continued_files(tmp_path: Path, httpserver: HTTPServer):
 
             assert path.exists()
 
-            ctime = path.stat().st_ctime_ns
+            mtime = path.stat().st_mtime_ns
             if source in enabled:
-                assert ctime > timestamp
+                assert mtime > timestamp
             else:
-                assert ctime < timestamp
+                assert mtime < timestamp
 
 def test_continued_metadata(tmp_path: Path, httpserver: HTTPServer):
     sources = create_sources(httpserver)
