@@ -19,9 +19,14 @@ class Downloader(object):
             if response.status_code != 200:
                 raise Exception(f"Bad status code: {response.status_code}")
 
-            #Checks if the response was a pdf file
-            if not "application/pdf" in response.headers.get("content-type"):
-                raise Exception("Not pdf type")
+            #Checks if the response might be a pdf file
+            #Content-Type is not required nor very strict
+            content_type = response.headers.get("content-type")
+            if content_type:
+                content_pdf = "application/pdf" in content_type
+                content_data = "application/octet-stream" in content_type
+                if not content_pdf and not content_data:
+                    raise Exception("Not pdf type")
         except:
             success = False
         
