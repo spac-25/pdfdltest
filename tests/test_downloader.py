@@ -7,6 +7,7 @@ import Downloader
 from typing import Optional
 from pathlib import Path
 
+# convenience function for downloading
 def download(dir: Path, url:str, fallback: Optional[str] = None, timeout: float=1.0) -> tuple[Path, bool]:
     path = dir.joinpath(f'test.pdf')
     result = Downloader.Downloader().download(
@@ -18,14 +19,19 @@ def download(dir: Path, url:str, fallback: Optional[str] = None, timeout: float=
 
     return path, result
 
+def test_timeout(tmp_path: Path, httpserver: HTTPServer):
+    handlers = test_util.HTTPHandlers(httpserver, timeout=2.0)
+    _, result = download(tmp_path, handlers.timeout(), timeout=1.0)
+    assert result == False
+
 # def test_{data}_{content type}_{status code}
 
 def test_pdf_pdf_200(tmp_path: Path, httpserver: HTTPServer):
     handlers = test_util.HTTPHandlers(httpserver)
     path, result = download(tmp_path, handlers.pdf_pdf_200.url())
-
     assert result == True
 
+    # check that file was downloaded correctly
     with open(path, 'br') as file:
         data = file.read()
         assert data == test_util.DATA_PDF
@@ -35,6 +41,7 @@ def test_pdf_pdf_200_fallback(tmp_path: Path, httpserver: HTTPServer):
     path, result = download(tmp_path, handlers.none(), handlers.pdf_pdf_200.url())
     assert result == True
 
+    # check that file was downloaded correctly
     with open(path, 'br') as file:
         data = file.read()
         assert data == test_util.DATA_PDF
@@ -72,9 +79,4 @@ def test_html_html_200(tmp_path: Path, httpserver: HTTPServer):
 def test_html_html_404(tmp_path: Path, httpserver: HTTPServer):
     handlers = test_util.HTTPHandlers(httpserver)
     _, result = download(tmp_path, handlers.html_html_404.url())
-    assert result == False
-
-def test_timeout(tmp_path: Path, httpserver: HTTPServer):
-    handlers = test_util.HTTPHandlers(httpserver, timeout=2.0)
-    _, result = download(tmp_path, handlers.timeout(), timeout=1.0)
     assert result == False

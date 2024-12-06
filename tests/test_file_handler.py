@@ -28,6 +28,7 @@ class Source:
     def is_valid(self) -> bool:
         return (self.url and self.url.enabled) or (self.fallback and self.fallback.enabled)
 
+# creates ids and sparse urls with sparser disabled fallback urls
 def create_sources(server: HTTPServer, count=15) -> List[Source]:
     return [
         Source(
@@ -38,6 +39,7 @@ def create_sources(server: HTTPServer, count=15) -> List[Source]:
         for i in range(count)
     ]
 
+# writes source file that ids and potential urls
 def create_source_file(dir: Path, data: List[Source]):
     columns = {'BRnum': [], 'Pdf_URL': [], 'Report Html Address': []}
     for row in data:
@@ -50,13 +52,16 @@ def create_source_file(dir: Path, data: List[Source]):
 
     return data
 
+# starts the file handler
 def download(dir: Path):
     Polar_File_Handler.FileHandler().start_download(dir.joinpath(PATH_SOURCE), dir.joinpath(PATH_METADATA), dir.joinpath(PATH_FILES))
 
+# test if file handler raises an exception when there is no source file
 def test_no_source(tmp_path: Path, httpserver: HTTPServer):
     with pytest.raises(FileNotFoundError):
         download(tmp_path)
 
+# test that file handler creates the metadata file
 def test_no_metadata(tmp_path: Path, httpserver: HTTPServer):
     create_source_file(tmp_path, [])
 
@@ -64,17 +69,20 @@ def test_no_metadata(tmp_path: Path, httpserver: HTTPServer):
 
     assert tmp_path.joinpath(PATH_METADATA).exists()
 
+# test that file handler runs without any sources
 def test_no_files(tmp_path: Path, httpserver: HTTPServer):
     create_source_file(tmp_path, [])
 
     download(tmp_path)
 
+# test that the file handler runs with sources
 def test_cold_download(tmp_path: Path, httpserver: HTTPServer):
     sources = create_sources(httpserver)
     create_source_file(tmp_path, sources)
 
     download(tmp_path)
 
+# test that the enabled sources have been downloaded
 def test_cold_files(tmp_path: Path, httpserver: HTTPServer):
     sources = create_sources(httpserver)
     create_source_file(tmp_path, sources)
@@ -85,6 +93,7 @@ def test_cold_files(tmp_path: Path, httpserver: HTTPServer):
         if source.is_valid():
             assert tmp_path.joinpath(PATH_FILES, f'{source.id}{FILE_SUFFIX}').exists()
 
+# test that the download results have been noted correctly in the metadata file
 def test_cold_metadata(tmp_path: Path, httpserver: HTTPServer):
     sources = create_sources(httpserver)
     create_source_file(tmp_path, sources)
@@ -102,6 +111,7 @@ def test_cold_metadata(tmp_path: Path, httpserver: HTTPServer):
         result_expected = RESULT_SUCCESS if source.is_valid() else RESULT_FAILURE
         assert rows[0, COLUMN_RESULT] == result_expected
 
+# test that rerunning after enabling the alternative urls downloads (only) the newly valid urls
 def test_continued_files(tmp_path: Path, httpserver: HTTPServer):
     sources = create_sources(httpserver)
     create_source_file(tmp_path, sources)
@@ -134,6 +144,7 @@ def test_continued_files(tmp_path: Path, httpserver: HTTPServer):
             else:
                 assert mtime < timestamp
 
+# test that rerunning after enabling the alternative urls updates the metadata correctly
 def test_continued_metadata(tmp_path: Path, httpserver: HTTPServer):
     sources = create_sources(httpserver)
     create_source_file(tmp_path, sources)
